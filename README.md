@@ -31,67 +31,104 @@ STEP:11  On the board, by giving required input, the LEDs starts to glow light, 
 
 # Verilog code
 # 2-BIT MULTIPLIER
-module multiplier2by2(C,A,B);
-input [1:0]A,B;
-output [3:0]C;
-wire w1,w2,w3,w4; 
-and (C[0],A[0],B[0]); 
-and (w1,A[0],B[1]);
-and (w2,A[1],B[0]); 
-and (w3,A[1],B[1]); 
-halfadder ha1(C[1],w4,w1,w2); 
-halfadder ha2(C[2],C[3],w3,w4);
-endmodule
-module halfadder(sum,carry,a,b);
+module ha(a,b,sum,c);
+
 input a,b;
-output sum, carry;
-xor(sum,a,b);
-and(carry,a,b);
-endmodule
-# 4-BIT MULTIPLIER
-module arraymultiplier(m,a,b);
-input [3:0]a,b;
-output [7:0]m;
-wire [15:0]p;
-wire [12:1]s,c;
-and(p[0],a[0],b[0]);
-and(p[1],a[1],b[0]);
-and(p[2],a[0],b[1]);
-and(p[3],a[2],b[0]);
-and(p[4],a[1],b[1]);
-and(p[5],a[0],b[2]);
-and(p[6],a[3],b[0]);
-and(p[7],a[2],b[1]);
-and(p[8],a[1],b[2]);
-and(p[9],a[0],b[3]);
-and(p[10],a[3],b[1]);
-and(p[11],a[2],b[2]);
-and(p[12],a[1],b[3]); 
-and(p[13],a[3],b[2]); 
-and(p[14],a[2],b[3]); 
-and(p[15],a[3],b[3]);
-half_adder ha1(s[1],c[1],p[1],p[2]);
-full_adder fa2(s[2],c[2],p[4],p[3],p[5]);
-half_adder ha3(s[3],c[3],s[2],c[1]);
-full_adder fa4(s[4],c[4],p[6],p[7],p[8]);
-full_adder fa5(s[5],c[5],s[4],c[2],c[3]);
-half_adder ha6(s[6],c[6],s[5],p[9]);
-full_adder fa7(s[7],c[7],p[10],p[11],p[12]);
-full_adder fa8(s[8],c[8],c[5],c[4],s[7]);
-half_adder ha9(s[9],c[9],s[8],c[6]);
-full_adder fa10(s[10],c[10],p[14],p[13],c[7]);
-full_adder fa11(s[11],c[11],c[9],c[8],s[10]);
-full_adder fa12(s[12],c[12],p[15],c[10],c[11]);
-buf(m[0],p[0]);
-buf(m[1],s[1]);
-buf(m[2],s[3]);
-buf(m[3],s[6]);
-buf(m[4],s[9]);
-buf(m[5],s[11]);
-buf(m[6],s[12]);
-buf(m[7],c[12]);
+
+output sum,c;
+
+xor g1(sum,a,b);
+
+and g2(c,a,b);
+
 endmodule
 
+module bitmultiplier(a,b,c);
+
+input [1:0]a,b;
+
+output[3:0]c;
+
+wire w1;
+
+and g1(c[0],b[0],a[0]);
+
+ha ha1(a[0]&b[1],a[1]&b[0],c[1],w1);
+
+ha ha2(a[1] &b[1],w1,c[2],c[3]);
+
+endmodule
+# 4-BIT MULTIPLIER
+
+module ha(a,b,c,s);
+
+input a,b;
+
+output s,c;
+
+xor g1(s,a,b);
+
+and g2(c,a,b);
+
+endmodule
+
+module fa(a,b,c,s,carry);
+
+input a,b,c;
+
+output s,carry;
+
+wire w1,w2,w3;
+
+xor g1(w1,a,b);
+
+and g2(w2,a,b);
+
+xor g3(s,w1,c);
+
+and g4(w3,w1,c);
+
+or g5(carry,w3,w2);
+
+endmodule
+
+module bitmultiplier(x,y,z);
+
+input[3:0]x,y;
+
+output[7:0]z;
+
+wire [17:1]w;
+
+and g1(z[0],x[0],y[0]);
+
+ha ha1(x[1]&y[0],x[0]&y[1],z[1],w[1]);
+
+fa fa1(x[2]&y[0],x[1]&y[1],w[1],w[5],w[2]);
+
+fa fa2(x[3]&y[0],x[2]&y[1],w[2],w[6],w[3]);
+
+ha ha2(x[3]&y[1],w[3],w[7],w[4]);
+
+ha ha3(w[5],x[0]&y[2],z[2],w[8]);
+
+fa fa3(w[6],x[1]&y[2],w[8],w[12],w[9]);
+
+fa fa4(w[7],x[2]&y[2],w[9],w[13],w[10]);
+
+fa fa5(w[4],x[3]&y[2],w[10],w[14],w[11]);
+
+ha ha4(w[12],x[0]&y[3],z[3],w[15]);
+
+fa fa6(w[13],x[1]&y[3],w[15],z[4],w[16]);
+
+fa fa7(w[14],x[2]&y[3],w[16],z[5],w[17]);
+
+fa fa8(w[11],x[3]&y[3],w[17],z[6],z[7]);
+
+endmodule
+
+Output Waveform
 # Output Waveform
 # 2-BIT MULTIPLIER
 ![image](https://github.com/sujitha18b/VLSI-LAB-EXP-3/assets/161813783/e0d8580c-9777-4e90-9298-8b8ae5f975da)
